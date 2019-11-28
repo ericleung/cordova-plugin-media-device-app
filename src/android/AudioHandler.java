@@ -101,82 +101,209 @@ public class AudioHandler extends CordovaPlugin {
      * @param callbackContext		The callback context used when calling back into JavaScript.
      * @return 				A PluginResult object with a status and message.
      */
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+    public boolean execute(final String action,final JSONArray args,final CallbackContext callbackContext) throws JSONException {
         CordovaResourceApi resourceApi = webView.getResourceApi();
         PluginResult.Status status = PluginResult.Status.OK;
         String result = "";
 
         if (action.equals("startRecordingAudio")) {
             recordId = args.getString(0);
-            String target = args.getString(1);
-            try {
-                Uri targetUri = resourceApi.remapUri(Uri.parse(target));
-                fileUriStr = targetUri.toString();
-            } catch (IllegalArgumentException e) {
-                fileUriStr = target;
-            }
-            promptForRecord();
+            final String target = args.getString(1);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+
+
+                    try {
+                        Uri targetUri = resourceApi.remapUri(Uri.parse(target));
+                        fileUriStr = targetUri.toString();
+                    } catch (IllegalArgumentException e) {
+                        fileUriStr = target;
+                    }
+                    promptForRecord();
+                }
+            });
+
         }
         else if (action.equals("stopRecordingAudio")) {
-            this.stopRecordingAudio(args.getString(0), true);
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    stopRecordingAudio(str1, true);
+                }
+            });
+
+            //this.stopRecordingAudio(args.getString(0), true);
         }
         else if (action.equals("pauseRecordingAudio")) {
-            this.stopRecordingAudio(args.getString(0), false);
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    stopRecordingAudio(str1, false);
+                }
+            });
+
+            //this.stopRecordingAudio(args.getString(0), false);
         }
         else if (action.equals("resumeRecordingAudio")) {
-            this.resumeRecordingAudio(args.getString(0));
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    resumeRecordingAudio(str1);
+                }
+            });
+
+            //this.resumeRecordingAudio(args.getString(0));
         }
         else if (action.equals("startPlayingAudio")) {
-            String target = args.getString(1);
-            String fileUriStr;
-            try {
-                Uri targetUri = resourceApi.remapUri(Uri.parse(target));
-                fileUriStr = targetUri.toString();
-            } catch (IllegalArgumentException e) {
-                fileUriStr = target;
-            }
-            this.startPlayingAudio(args.getString(0), FileHelper.stripFileProtocol(fileUriStr));
+            final String str1 = args.getString(0);
+            final String target = args.getString(1);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    String fileUriStr;
+                    try {
+                        Uri targetUri = resourceApi.remapUri(Uri.parse(target));
+                        fileUriStr = targetUri.toString();
+                    } catch (IllegalArgumentException e) {
+                        fileUriStr = target;
+                    }
+                    startPlayingAudio(str1, FileHelper.stripFileProtocol(fileUriStr));
+
+                }
+            });
+
+
         }
         else if (action.equals("seekToAudio")) {
-            this.seekToAudio(args.getString(0), args.getInt(1));
+            final String str1 = args.getString(0);
+            final int int2 = args.getInt(1);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    seekToAudio(str1, int2);
+                }
+            });
+
+            //this.seekToAudio(args.getString(0), args.getInt(1));
         }
         else if (action.equals("pausePlayingAudio")) {
-            this.pausePlayingAudio(args.getString(0));
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    pausePlayingAudio(str1);
+                }
+            });
+
+            //this.pausePlayingAudio(args.getString(0));
         }
         else if (action.equals("stopPlayingAudio")) {
-            this.stopPlayingAudio(args.getString(0));
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    stopPlayingAudio(str1);
+                }
+            });
+
+            //this.stopPlayingAudio(args.getString(0));
         } else if (action.equals("setVolume")) {
-           try {
-               this.setVolume(args.getString(0), Float.parseFloat(args.getString(1)));
-           } catch (NumberFormatException nfe) {
-               //no-op
-           }
+            final String str1 = args.getString(0);
+            final String str2 = args.getString(1);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        setVolume(str1, Float.parseFloat(str2));
+                    } catch (NumberFormatException nfe) {
+                        //no-op
+                    }
+                }
+            });
+
+
         } else if (action.equals("getCurrentPositionAudio")) {
-            float f = this.getCurrentPositionAudio(args.getString(0));
-            callbackContext.sendPluginResult(new PluginResult(status, f));
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+
+                    float f = getCurrentPositionAudio(str1);
+                    callbackContext.sendPluginResult(new PluginResult(status, f));
+
+                }
+            });
             return true;
+
         }
         else if (action.equals("getDurationAudio")) {
-            float f = this.getDurationAudio(args.getString(0), args.getString(1));
-            callbackContext.sendPluginResult(new PluginResult(status, f));
+            final String str1 = args.getString(0);
+            final String str2 = args.getString(1);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    float f = getDurationAudio(str1, str2);
+                    callbackContext.sendPluginResult(new PluginResult(status, f));
+                }
+            });
+
+
             return true;
         }
         else if (action.equals("create")) {
-            String id = args.getString(0);
-            String src = FileHelper.stripFileProtocol(args.getString(1));
-            getOrCreatePlayer(id, src);
+            final String str1 = args.getString(0);
+            final String str2 = args.getString(1);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    String id = str1;
+                    String src = FileHelper.stripFileProtocol(str2);
+                    getOrCreatePlayer(id, src);
+                }
+            });
+
+
         }
         else if (action.equals("release")) {
-            boolean b = this.release(args.getString(0));
-            callbackContext.sendPluginResult(new PluginResult(status, b));
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    boolean b = release(str1);
+                    callbackContext.sendPluginResult(new PluginResult(status, b));
+                }
+            });
+
+
             return true;
         }
         else if (action.equals("messageChannel")) {
-            messageChannel = callbackContext;
+
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    messageChannel = callbackContext;
+                }
+            });
+
+
             return true;
         } else if (action.equals("getCurrentAmplitudeAudio")) {
-            float f = this.getCurrentAmplitudeAudio(args.getString(0));
-            callbackContext.sendPluginResult(new PluginResult(status, f));
+            final String str1 = args.getString(0);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    float f = getCurrentAmplitudeAudio(str1);
+                    callbackContext.sendPluginResult(new PluginResult(status, f));
+                }
+            });
+
+
             return true;
         }
         else { // Unrecognized action.

@@ -155,6 +155,11 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
             this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             this.recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS); // RAW_AMR);
             this.recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC); //AMR_NB);
+
+            this.recorder.setAudioChannels(1); // single channel
+            this.recorder.setAudioSamplingRate(16000); // 44.1 kHz for decent sound, similar to stock iOS media plugin
+            this.recorder.setAudioEncodingBitRate(16384); // low bit rate
+
             this.tempFile = generateTempFile();
             this.recorder.setOutputFile(this.tempFile);
             try {

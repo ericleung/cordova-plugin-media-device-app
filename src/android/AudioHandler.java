@@ -31,6 +31,7 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
 import android.os.Build;
 
+import java.io.IOException;
 import java.security.Permission;
 import java.util.ArrayList;
 
@@ -113,7 +114,6 @@ public class AudioHandler extends CordovaPlugin {
                 @Override
                 public void run() {
 
-
                     try {
                         Uri targetUri = resourceApi.remapUri(Uri.parse(target));
                         fileUriStr = targetUri.toString();
@@ -178,6 +178,7 @@ public class AudioHandler extends CordovaPlugin {
 
 
         }
+
         else if (action.equals("seekToAudio")) {
             final String str1 = args.getString(0);
             final int int2 = args.getInt(1);
@@ -300,6 +301,27 @@ public class AudioHandler extends CordovaPlugin {
                 public void run() {
                     float f = getCurrentAmplitudeAudio(str1);
                     callbackContext.sendPluginResult(new PluginResult(status, f));
+                }
+            });
+
+
+            return true;
+        } else if (action.equals("downloadAudioFile")) {
+            final String filename = args.getString(0);
+            final String base64 = args.getString(1);
+
+            final AudioHandler handler = this;
+
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String realFilename = FileHelper.downloadAudioFile(handler, filename, base64);
+                        callbackContext.sendPluginResult(new PluginResult(status, realFilename));
+                    }catch (IOException ex) {
+                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, ex.getMessage()));
+                    }
+
                 }
             });
 
@@ -523,7 +545,7 @@ public class AudioHandler extends CordovaPlugin {
             audiMgr.setRouting(AudioManager.MODE_NORMAL, AudioManager.ROUTE_EARPIECE, AudioManager.ROUTE_ALL);
         }
         else {
-             LOG.e(TAG1," Unknown output device");
+            LOG.e(TAG1," Unknown output device");
         }
     }
 
@@ -547,8 +569,8 @@ public class AudioHandler extends CordovaPlugin {
      * Get the the audio focus
      */
     private OnAudioFocusChangeListener focusChangeListener = new OnAudioFocusChangeListener() {
-            public void onAudioFocusChange(int focusChange) {
-                switch (focusChange) {
+        public void onAudioFocusChange(int focusChange) {
+            switch (focusChange) {
                 case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) :
                 case (AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) :
                 case (AudioManager.AUDIOFOCUS_LOSS) :
@@ -559,17 +581,17 @@ public class AudioHandler extends CordovaPlugin {
                     break;
                 default:
                     break;
-                }
             }
-        };
+        }
+    };
 
     public void getAudioFocus() {
         String TAG2 = "AudioHandler.getAudioFocus(): Error : ";
 
         AudioManager am = (AudioManager) this.cordova.getActivity().getSystemService(Context.AUDIO_SERVICE);
         int result = am.requestAudioFocus(focusChangeListener,
-                                          AudioManager.STREAM_MUSIC,
-                                          AudioManager.AUDIOFOCUS_GAIN);
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
 
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             LOG.e(TAG2,result + " instead of " + AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
@@ -610,7 +632,7 @@ public class AudioHandler extends CordovaPlugin {
         if (audio != null) {
             audio.setVolume(volume);
         } else {
-          LOG.e(TAG3,"Unknown Audio Player " + id);
+            LOG.e(TAG3,"Unknown Audio Player " + id);
         }
     }
 

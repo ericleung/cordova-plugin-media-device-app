@@ -44,11 +44,18 @@
         <clobbers target="window.Media" />
     </js-module>
 
+    <js-module src="www/MediaFileHelper.js" name="MediaFileHelper">
+        <clobbers target="window.MediaFileHelper" />
+    </js-module>
+
     <!-- android -->
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="Media" >
                 <param name="android-package" value="org.apache.cordova.media.AudioHandler"/>
+            </feature>
+            <feature name="MediaFileHelperHandler" >
+                <param name="android-package" value="org.apache.cordova.media.MediaFileHelperHandler"/>
             </feature>
         </config-file>
 
@@ -62,6 +69,7 @@
         <source-file src="src/android/AudioHandler.java" target-dir="src/org/apache/cordova/media" />
         <source-file src="src/android/AudioPlayer.java" target-dir="src/org/apache/cordova/media" />
         <source-file src="src/android/FileHelper.java" target-dir="src/org/apache/cordova/media" />
+        <source-file src="src/android/MediaFileHelperHandler.java" target-dir="src/org/apache/cordova/media" />
     </platform>
 
     <!-- ios -->

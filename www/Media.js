@@ -187,6 +187,14 @@ Media.prototype.getCurrentAmplitude = function(success, fail) {
 };
 
 /**
+ * download audio file
+ */
+
+//Media.prototype.downloadAudioFile = function(filename, base64, success, fail) {
+//    exec(success, fail, "Media", "downloadAudioFile", [filename, base64]);
+//};
+
+/**
  * Audio has status update.
  * PRIVATE
  *

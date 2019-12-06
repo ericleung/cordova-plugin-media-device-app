@@ -19,6 +19,15 @@
 package org.apache.cordova.media;
 
 import android.net.Uri;
+import android.os.Environment;
+import android.util.Base64;
+
+import org.apache.cordova.CordovaPlugin;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class FileHelper {
 
@@ -34,5 +43,80 @@ public class FileHelper {
             return Uri.parse(uriString).getPath();
         }
         return uriString;
+    }
+
+    public static String getFullFilename(CordovaPlugin handler, String singleFilename) {
+        String fullFilename = "";
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            fullFilename = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + singleFilename;
+        } else {
+            fullFilename = "/data/data/" + handler.cordova.getActivity().getPackageName() + "/cache/" + singleFilename;
+        }
+
+        return fullFilename;
+    }
+
+    public static String exists(CordovaPlugin handler, String filename)  {
+        String full = getFullFilename(handler, filename);
+        File file = getFile(full);
+        if(file != null) {
+            return full;
+        }
+        return null;
+    }
+
+    public static String downloadAudioFile(CordovaPlugin handler, String filename, String base64) throws IOException {
+        String full = getFullFilename(handler, filename);
+        File file = getFile(full);
+        if(file != null) {
+            return full;
+        }
+
+        base64ToFile(base64, full);
+
+        return full;
+    }
+
+    public static File getFile(String fullFilename) {
+        File file = new File(Environment.getExternalStorageDirectory(), fullFilename);
+        if (file.exists()) {
+            return file;
+        }
+
+        return null;
+    }
+
+    public static File base64ToFile(String base64, String fullFilename) throws IOException {
+        File file = null;
+        String fileName = fullFilename;
+        FileOutputStream out = null;
+        try {
+            // 解码，然后将字节转换为文件
+            file = new File(Environment.getExternalStorageDirectory(), fileName);
+            if (!file.exists())
+                file.createNewFile();
+            byte[] bytes = Base64.decode(base64, Base64.DEFAULT);// 将字符串转换为byte数组
+            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+            byte[] buffer = new byte[1024];
+            out = new FileOutputStream(file);
+            int bytesum = 0;
+            int byteread = 0;
+            while ((byteread = in.read(buffer)) != -1) {
+                bytesum += byteread;
+                out.write(buffer, 0, byteread); // 文件写操作
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return file;
     }
 }
